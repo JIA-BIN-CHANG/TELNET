@@ -13,7 +13,7 @@ import pandas as pd
 from torch import nn
 import coverage_overflow as co
 
-with open('./config.json','r') as f:
+with open('./config_bbc.json','r') as f:
     config = json.load(f)
 
 device = config['device']
@@ -151,7 +151,7 @@ def evaluate_window(label_dir,model,video_list,mask,windowSize,ground_dir,bbc=Fa
     lossfun = nn.CrossEntropyLoss()
     visual_feature_dir = os.path.join(ground_dir,'parse_data')                  ## feature的路徑
     fscore = 0                                                                  ## 紀錄 Fscore            
-    for video_name in range(video_list):                                            ## 因為每個Dataset都有很多影片，故要計算每個的平均
+    for video_name in video_list:                                            ## 因為每個Dataset都有很多影片，故要計算每個的平均
         label = load_keyShot(label_dir,video_name).to(device)
         visual_feature_path = os.path.join(visual_feature_dir,video_name)
         if not os.path.isdir(visual_feature_path):
@@ -336,7 +336,7 @@ def evaluate_window(label_dir,model,video_list,mask,windowSize,ground_dir,bbc=Fa
             fscore += score
         del gt_window
     fscore = fscore/len(video_list)
-    return fscore, boundary,boundary_list,batch_loss 
+    return fscore, boundary,boundary_list,batch_loss
 
 if __name__ == '__main__':
     dataset_dir = 'D:/UC_project/OVSD_Dataset/parse_data'

@@ -17,6 +17,7 @@ import coverage_overflow as co
 import torch
 from torch import nn
 from torch import optim
+import argparse
 
 # import tools
 import tools as tools
@@ -278,19 +279,31 @@ def save_model(model, save_path):
     return 
 
 if __name__ == '__main__':
-    config_path = './config.json'
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--type', required=True,
+                        help="Use it to train the model by cross or leave one out")
+    parser.add_argument('--dataset', required=True,
+                        help="Use it to select config file")
+    args = parser.parse_args()
+
+    config_path = 'config_{}.json'.format(args.dataset)
     with open(config_path, 'r') as f:
         config = json.load(f)
-    
+
     print("Using Device:{}".format(torch.device(config['device'])))
-    print(f"Training_mode:{config['Training_mode']}, dataset: {config['dataset_dir']}")
+    print(f"Training_mode:{args.type}, dataset: {args.dataset}")
+
+    if (args.type == "cross"):
+        '''Cross dataset evaluation'''
+        config['Training_mode'] = 'cross'
+        best_model = train(config)
+        # save_model(best_model, config['save_model_path'])
+    if (args.type == "leave_one_out"):
+        '''BBC Leave one out'''
+        config['Training_mode'] = 'leave_one_out'
+        score, boundary = train(config)
+        # save_score(config['save_score_path'],score)
+        # save_bound(config['save_bound_path'],boundary)
     
-    #BBC Leave one out
-#     score, boundary = train(config)
-#     save_score(config['save_score_path'],score)
-#     save_bound(config['save_bound_path'],boundary)
-    
-    #Cross dataset evaluation
-    best_model = train(config)
-    # save_model(best_model, config['save_model_path'])
+
     

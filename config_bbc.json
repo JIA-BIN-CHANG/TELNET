@@ -6,8 +6,8 @@
    
     "dataset_dir": "D:/features/BBC_Dataset_sports1M_clip_len=16_yang_v2", 
     "label_dir": "D:/UC_project/BBC_Earth_Dataset/annotations/scenes/annotator_1",
-    "Training_mode": "leave_one_out",
     "isBBC": true,
+    "Training_mode": "cross",
 
     "feature_dim": 4096,
     "window_size": 15,

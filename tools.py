@@ -140,8 +140,8 @@ def pred_scenes(pred,mask=5):
         if boundary[i-1] == boundary[i]-1:
             boundary = np.delete(boundary,i)
     
-    boundary2 = boundary
-    return np.array(boundary),boundary2
+    boundary_list = boundary
+    return np.array(boundary),boundary_list
 
 def evaluate_window(label_dir,model,video_list,mask,windowSize,ground_dir,bbc=False):
     """
@@ -325,7 +325,7 @@ def evaluate_window(label_dir,model,video_list,mask,windowSize,ground_dir,bbc=Fa
         batch_loss = lossout.item()
         batch_loss = batch_loss
     
-        boundary,boundary2 = pred_scenes(pred,mask=mask)## pred_scene會根據連線產生預測的scene boundary，pred_scene有進一步說明
+        boundary,boundary_list = pred_scenes(pred,mask=mask)## pred_scene會根據連線產生預測的scene boundary，pred_scene有進一步說明
     
         if bbc:
             score = co.fscore_eval_bbc(boundary, video_name) ## 計算Fscore
@@ -336,7 +336,7 @@ def evaluate_window(label_dir,model,video_list,mask,windowSize,ground_dir,bbc=Fa
             fscore += score
         del gt_window
     fscore = fscore/len(video_list)
-    return fscore, boundary,boundary2,batch_loss 
+    return fscore, boundary,boundary_list,batch_loss 
 
 if __name__ == '__main__':
     dataset_dir = 'D:/UC_project/OVSD_Dataset/parse_data'

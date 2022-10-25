@@ -194,7 +194,7 @@ def eval_model(model, config):
                     break
                 tmp = tmp.to(torch.device('cpu'))
                 pred = torch.cat((pred,tmp))
-            boundary,boundary2 = tools.pred_scenes(pred)
+            boundary, _ = tools.pred_scenes(pred)
             if isBBC:
                 score = co.fscore_eval_bbc(boundary, video_name)
             else:

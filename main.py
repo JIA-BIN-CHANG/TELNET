@@ -197,11 +197,11 @@ def train(config):
             
             #evaluate and save best model to temp
             if epoch % eval_rate == (eval_rate-1):
-                tmp, tmp_bound,boundary2,testing_losses = tools.evaluate_window(label_dir, model, video_list, 5, windowSize, dataset_dir, bbc=config['isBBC'])    ## 一段時間後驗證一次模型，更多說明見evaluate_window
+                tmp, tmp_bound,boundary_list,testing_losses = tools.evaluate_window(label_dir, model, video_list, 5, windowSize, dataset_dir, bbc=config['isBBC'])    ## 一段時間後驗證一次模型，更多說明見evaluate_window
                 if tmp>f_score:
                     f_score = tmp
                     bsf_bound = tmp_bound
-                    bsf_boundary2 = boundary2
+                    bsf_boundary_list = boundary_list
                     best_model = model
                 print("Epoch: {}, f_score: {}, best f_score: {}".format(epoch,tmp,f_score))
         return best_model
@@ -252,15 +252,15 @@ def train(config):
                 train_losses.append(epoch_loss)
                 
                 #evaluate every epoch and save best f1-score
-                tmp, tmp_bound,boundary2,testing_losses = tools.evaluate_window(label_dir, model, [test_video], 5, windowSize, dataset_dir, bbc=config['isBBC'])    ## 一段時間後驗證一次模型，更多說明見evaluate_window
+                tmp, tmp_bound,boundary_list,testing_losses = tools.evaluate_window(label_dir, model, [test_video], 5, windowSize, dataset_dir, bbc=config['isBBC'])    ## 一段時間後驗證一次模型，更多說明見evaluate_window
                 test_losses.append(testing_losses)
                 print("epoch: {},testing loss: {}".format(epoch,testing_losses))
                 if tmp>bsf_score:
                     bsf_score = tmp
                     bsf_bound = tmp_bound
-                    bsf_boundary2 = boundary2
+                    bsf_boundary_list = boundary_list
                 print("Epoch: {}, f_score: {}, best f_score: {}".format(epoch,tmp,bsf_score))
-                print("best boundary: ",bsf_boundary2)
+                print("best boundary: ",bsf_boundary_list)
 
             fscore_dict.update({test_video:bsf_score})
             bound_dict.update({test_video:bsf_bound})

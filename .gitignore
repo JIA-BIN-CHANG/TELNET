@@ -5,6 +5,6 @@
 yang_bbc_keyshot
 
 #all the unclean code from pervious
-./main_clean.py
-./tools_clean.py
-./eval_clean.py
+main_clean.py
+tools_clean.py
+eval_clean.py

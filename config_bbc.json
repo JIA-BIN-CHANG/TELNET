@@ -13,7 +13,7 @@
     "window_size": 15,
     "n_stack": 6,
     "lr": 0.01,
-    "save_loss_plot": "./final_result/bbc_result/loss",
+    "save_loss_plot": "./final_result/bbc_result/loss/",
     "save_score_path": "./final_result/bbc_result/f1/BBC_Dataset_sports1M epoches 100 mask=5 merge_window=15_correct.txt",
     "save_bound_path": "./final_result/bbc_result/boundary/BBC_Dataset_sports1M epoches 100 mask=5 merge_window=15_correct.txt",
     "save_model_path": "./final_result/bbc_result/model/BBC_mask=5.pth",

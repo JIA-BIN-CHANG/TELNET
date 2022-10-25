@@ -36,11 +36,13 @@ def save_score(path, score_dict):
     return 
 
 def save_bound(path, bound_dict):
-    allscore = 0
     with open(path, 'w') as fw:
         for video_name in list(bound_dict.keys()):
             bound_list = bound_dict[video_name]
-            fw.writelines(f'{video_name}: {bound_list}\n')
+            fw.write(f'{video_name}: ')
+            for bound in bound_list:
+                fw.write(f'{bound} ')
+            fw.write('\n')
     return
 
 def inference(model, feature, label, windowSize):
@@ -210,10 +212,8 @@ def train(config):
         print("Leave One Out Training")
         fscore_dict = {}
         bound_dict = {}
-        for test_index in range(len(video_list)):
-            test_video = video_list[test_index]
-            print("test_video",test_video)
-            
+        for test_video in video_list:
+            print("Test video: ",test_video)
             model = TELNet_model(input_size=feature_dim, windowSize=windowSize).to(device)  ## 這個是簡化過的，現在要以這個為準
             lossfun = nn.CrossEntropyLoss()
             optimizer = optim.SGD(model.parameters(), lr=config['lr'])
@@ -249,19 +249,19 @@ def train(config):
                         epoch_loss += batch_loss 
 
                 epoch_loss = epoch_loss/len(training_list)
-                print("epoch: {}, loss: {}".format(epoch,epoch_loss))
+                # print("epoch: {}, loss: {}".format(epoch,epoch_loss))
                 train_losses.append(epoch_loss)
                 
                 #evaluate every epoch and save best f1-score
                 tmp, tmp_bound,boundary_list,testing_losses = tools.evaluate_window(label_dir, model, [test_video], 5, windowSize, dataset_dir, bbc=config['isBBC'])    ## 一段時間後驗證一次模型，更多說明見evaluate_window
                 test_losses.append(testing_losses)
-                print("epoch: {},testing loss: {}".format(epoch,testing_losses))
+                # print("epoch: {},testing loss: {}".format(epoch,testing_losses))
                 if tmp>bsf_score:
                     bsf_score = tmp
                     bsf_bound = tmp_bound
                     bsf_boundary_list = boundary_list
                 print("Epoch: {}, f_score: {}, best f_score: {}".format(epoch,tmp,bsf_score))
-                print("best boundary: ",bsf_boundary_list)
+                print("Best boundary: ",bsf_boundary_list)
 
             fscore_dict.update({test_video:bsf_score})
             bound_dict.update({test_video:bsf_bound})
@@ -301,9 +301,9 @@ if __name__ == '__main__':
     if (args.type == "leave_one_out"):
         '''BBC Leave one out'''
         config['Training_mode'] = 'leave_one_out'
-        score, boundary = train(config)
-        # save_score(config['save_score_path'],score)
-        # save_bound(config['save_bound_path'],boundary)
+        score_dict, boundary_dict = train(config)
+        save_score(config['save_score_path'],score_dict)
+        save_bound(config['save_bound_path'],boundary_dict)
     
 
     

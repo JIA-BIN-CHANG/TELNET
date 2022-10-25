@@ -1,0 +1,15 @@
+{
+    "device" : "cuda",
+
+    "eval_list": ["D:/UC_project/OVSD_Dataset"],
+    
+    "label_dir": "D:/UC_project/OVSD_Dataset/label",
+    "Training_mode": "cross",
+    "isBBC": false,
+
+    "feature_dim": 4096,
+    "window_size": 15,
+
+
+    "trained_model_path": "D:./final_result/bbc_result/model/BBC_mask=5.pth"
+}

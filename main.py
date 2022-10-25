@@ -161,12 +161,14 @@ def train(config):
     video_list = os.listdir(os.path.join(dataset_dir,'parse_data'))
     label_dir = config['label_dir']
     eval_rate = config['eval_rate']
+
+    model = TELNet_model(input_size=feature_dim, windowSize=windowSize).to(device)
+    lossfun = nn.CrossEntropyLoss()
+    optimizer = optim.SGD(model.parameters(), lr=config['lr'])
+    scheduler = optim.lr_scheduler.StepLR(optimizer, 10)
+
     print(f'Window Size: {windowSize}, n_stack: {n_stack}')
     if(config['Training_mode'] == 'cross'):
-        model = TELNet_model(input_size=feature_dim, windowSize=windowSize).to(device)             ## 這個是簡化過的，現在要以這個為準
-        lossfun = nn.CrossEntropyLoss()
-        optimizer = optim.SGD(model.parameters(), lr=config['lr'])
-        scheduler = optim.lr_scheduler.StepLR(optimizer, 10)                             ## 每10個epoch就降低學習率一次
         f_score = 0
         train_losses = []
         for epoch in range(config['epoches']):
@@ -214,10 +216,6 @@ def train(config):
         bound_dict = {}
         for test_video in video_list:
             print("Test video: ",test_video)
-            model = TELNet_model(input_size=feature_dim, windowSize=windowSize).to(device)  ## 這個是簡化過的，現在要以這個為準
-            lossfun = nn.CrossEntropyLoss()
-            optimizer = optim.SGD(model.parameters(), lr=config['lr'])
-            scheduler = optim.lr_scheduler.StepLR(optimizer, 10)                             ## 每10個epoch就降低學習率一次
             training_list = video_list.copy()
             training_list.remove(test_video)
             bsf_score = 0

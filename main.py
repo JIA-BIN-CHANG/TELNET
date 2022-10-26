@@ -39,9 +39,9 @@ def save_bound(path, bound_dict):
     with open(path, 'w') as fw:
         for video_name in list(bound_dict.keys()):
             bound_list = bound_dict[video_name]
-            fw.write(f'{video_name}: ')
+            fw.write(f'{video_name}:')
             for bound in bound_list:
-                fw.write(f'{bound} ')
+                fw.write(f' {bound}')
             fw.write('\n')
     return
 
@@ -178,7 +178,10 @@ def train(config):
                 model.train()
                 visual_feature_dir = os.path.join(dataset_dir,'parse_data',video_name)   ## 聲明shot feature的路徑
                 feature = tools.load_feature(visual_feature_dir).to(device)                 ## 讀取shot feature
-                label = tools.load_keyShot(label_dir,video_name).to(device)             ## 讀取BBC的 keyshot
+                label = tools.load_keyShot(label_dir,video_name)
+                if label is None:
+                    continue
+                label = label.to(device)
 
                 all_link_np = inference(model, feature, label, windowSize) #merge algorithm
                 
@@ -227,7 +230,11 @@ def train(config):
                 for video_name in training_list:
                     feature_dir = os.path.join(dataset_dir,'parse_data',video_name)
                     feature = tools.load_feature(feature_dir).to(device)
-                    label = tools.load_keyShot(label_dir,video_name).to(device)
+                    label = tools.load_keyShot(label_dir,video_name)
+                    if label is None:
+                        print(f'{video_name} key shot and boundary not match')
+                        continue
+                    label = label.to(device)
                     batch_loss=0
 
                     all_link_np = inference(model, feature, label, windowSize) #merge algorithm

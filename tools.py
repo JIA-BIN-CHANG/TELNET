@@ -13,7 +13,7 @@ import pandas as pd
 from torch import nn
 import coverage_overflow as co
 
-with open('./config_bbc.json','r') as f:
+with open('./config_ovsd.json','r') as f:
     config = json.load(f)
 
 device = config['device']
@@ -46,12 +46,14 @@ def load_feature(path,feature_dim=4096):
     return features
 
 def load_keyShot(label_dir, video_name):
-    yang_keyshot_dir = "./yang_bbc_keyshot/keyshot"
+    # yang_keyshot_dir = "./yang_bbc_keyshot/keyshot"
     tmp = open(os.path.join(label_dir,'{}_shot.txt').format(video_name)).readlines()
     scene_boundary = [int(each) for each in tmp[0].split(',')]
-    tmp = open(os.path.join(yang_keyshot_dir,'{}_keyShot.txt').format(video_name)).readlines()
-    
+    tmp = open(os.path.join(label_dir,'{}_keyShot.txt').format(video_name)).readlines()
     keyShots = [int(each) for each in tmp[0].split(',')]
+    if len(keyShots) != len(scene_boundary)-1:
+        # print(f'{video_name} key shot and boundary not match')
+        return None
     key_gt = []
     for i in range(len(keyShots)):
         key = keyShots[i]
@@ -152,7 +154,10 @@ def evaluate_window(label_dir,model,video_list,mask,windowSize,ground_dir,bbc=Fa
     visual_feature_dir = os.path.join(ground_dir,'parse_data')                  ## feature的路徑
     fscore = 0                                                                  ## 紀錄 Fscore            
     for video_name in video_list:                                            ## 因為每個Dataset都有很多影片，故要計算每個的平均
-        label = load_keyShot(label_dir,video_name).to(device)
+        label = load_keyShot(label_dir,video_name)
+        if label is None:
+            continue
+        label = label.to(device)
         visual_feature_path = os.path.join(visual_feature_dir,video_name)
         if not os.path.isdir(visual_feature_path):
             print('it is not')

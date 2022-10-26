@@ -302,7 +302,7 @@ if __name__ == '__main__':
         '''Cross dataset evaluation'''
         config['Training_mode'] = 'cross'
         best_model = train(config)
-        # save_model(best_model, config['save_model_path'])
+        save_model(best_model, config['save_model_path'])
     if (args.type == "leave_one_out"):
         '''BBC Leave one out'''
         config['Training_mode'] = 'leave_one_out'

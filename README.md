@@ -13,3 +13,9 @@ python main.py --type {type_name} --dataset {dataset_name}
 ## tools.py
 
 ## eval.py
+Use to evaluate datset using weights trained for different dataset
+parsers:
+--dataset : "bbc", "ovsd", "msc"
+```
+python eval.py --dataset {dataset_name}
+```

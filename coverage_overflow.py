@@ -95,7 +95,7 @@ def scoring(coverage,overflow,printed=True,string=None):
             fscore.append(0)
         elif c == 0:
             c = 1
-            print("Coverage is 0")
+            # print("Coverage is 0")
         else:
             denominator = 1/c+1/(1-o)
             fscore.append(2/denominator)

@@ -14,10 +14,7 @@ import numpy as np
 import coverage_overflow as co
 import tools
 from model.TELNet_Model import TELNet_model
-
-with open('./config_cross.json') as f:
-    config = json.load(f)
-    
+import argparse
 
 def eval_model(model, config):
     eval_list = config['eval_list']
@@ -210,7 +207,14 @@ def eval_model(model, config):
         
 
 if __name__ == '__main__':
-    
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--dataset', required=True,
+                        help="Use it to select config file")
+    args = parser.parse_args()
+
+    config_path = 'config_cross_{}.json'.format(args.dataset)
+    with open(config_path) as f:
+        config = json.load(f)
     model_path = config['trained_model_path']
     model = TELNet_model(config['feature_dim'], config['window_size'])
     model.load_state_dict(torch.load(model_path))

@@ -1,0 +1,15 @@
+{
+    "device" : "cuda",
+
+    "eval_list": ["D:/UC_project/BBC_Earth_Dataset"],
+    
+    "label_dir": "D:/UC_project/BBC_Earth_Dataset/annotations/scenes/annotator_1",
+    "Training_mode": "cross",
+    "isBBC": true,
+
+    "feature_dim": 4096,
+    "window_size": 15,
+
+
+    "trained_model_path": "D:./final_result/ovsd_result/model/ovsd_mask=5.pth"
+}

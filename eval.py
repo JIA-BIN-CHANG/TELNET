@@ -19,10 +19,10 @@ import argparse
 def eval_model(model, config):
     eval_list = config['eval_list']
     window_size = config['window_size']
-    gt_dir = config['label_dir']
     
     fscore_dict = {}
-    for eval_dataset in eval_list:
+    for index, eval_dataset in enumerate(eval_list):
+        gt_dir = config['label_dir'][index]
         fscore = 0
         dataset_dir = os.path.join(eval_dataset, './parse_data')
         if 'BBC' in dataset_dir:
@@ -31,11 +31,15 @@ def eval_model(model, config):
             isBBC = False
             
         video_list = os.listdir(dataset_dir)
+        video_dont_count=0
         for video_name in video_list:
             feature_dir = os.path.join(dataset_dir, video_name)
             nShot = len(os.listdir(feature_dir))
             nbatch = int(nShot/window_size)+1
             feature = tools.load_feature(feature_dir)
+            if feature.shape[0] < 25:
+                video_dont_count = video_dont_count + 1
+                continue
             pred = torch.tensor([])
             value_tmp = []
             att_out_value_tmp = []
@@ -200,7 +204,7 @@ def eval_model(model, config):
                 pass
             else:
                 fscore += score
-        fscore /= len(video_list)
+        fscore /= (len(video_list) - video_dont_count)
         fscore_dict.update({eval_dataset:fscore})
     return fscore_dict
             

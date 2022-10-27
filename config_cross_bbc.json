@@ -1,9 +1,9 @@
 {
     "device" : "cuda",
 
-    "eval_list": ["D:/UC_project/OVSD_Dataset"],
+    "eval_list": ["D:/UC_project/OVSD_Dataset", "D:/UC_project/MSC_Dataset/"],
     
-    "label_dir": "D:/UC_project/OVSD_Dataset/label",
+    "label_dir": ["D:/UC_project/OVSD_Dataset/label", "D:/UC_project/MSC_Dataset/clean_label"],
     "Training_mode": "cross",
     "isBBC": false,
 

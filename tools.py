@@ -160,7 +160,6 @@ def evaluate_window(label_dir,model,video_list,mask,windowSize,ground_dir,bbc=Fa
         label = label.to(device)
         visual_feature_path = os.path.join(visual_feature_dir,video_name)
         if not os.path.isdir(visual_feature_path):
-            print('it is not')
             continue
         feature = load_feature(visual_feature_path).to(device)                ## 讀取 shot feature
         pred = torch.tensor([]).to(torch.device('cpu'))      

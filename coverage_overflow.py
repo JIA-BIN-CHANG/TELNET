@@ -75,7 +75,7 @@ def createScene(src):
     shotInScene = []
     if len(src) <= 1:
         shotInScene = [i for i in range(src[-1]+1)]
-        return shotInScene
+        return [shotInScene]
     for i in range(len(src)-1):
         if i == 0:
             start_shot = 0
@@ -95,7 +95,6 @@ def scoring(coverage,overflow,printed=True,string=None):
             fscore.append(0)
         elif c == 0:
             c = 1
-            # print("Coverage is 0")
         else:
             denominator = 1/c+1/(1-o)
             fscore.append(2/denominator)
@@ -198,29 +197,6 @@ def fscore_eval_bbc(boundary,video_name,printed=True,coverover=False):
         gt_path = os.path.join('D:/UC_project/BBC_Earth_Dataset','annotations/scenes/annotator_'+str(i))
         bgt = load_bgt(gt_path,video_name)
         
-        
-        #########每15個用一個boundary 
-#         boundary  = np.zeros(len(bgt))
-#         boundary = []
-#         for i in range(0,len(bgt),15):
-# #             boundary[i] = 1
-#             boundary.append(i)
-# #         print('bgt',bgt)
-#         print('len bgt',len(bgt))
-#         print('boundary',boundary)
-# #         print(boundary)
-###################every shots
-#         boundary  = np.zeros(len(bgt))
-#         boundary = []
-#         for i in range(0,len(bgt)):
-# #             boundary[i] = 1
-#             boundary.append(i)
-# #         print('bgt',bgt)
-#         print('len bgt',len(bgt))
-#         print('boundary',boundary)
-# #         print(boundary)
-        ##########
-        
         cover_shot, over_shot = coverOverflow(bgt, boundary)
         tmp = scoring(cover_shot,over_shot,printed=False)
         cover.append(cover_shot)
@@ -274,6 +250,7 @@ def fscore_eval(boundary,video_name,gt_path,printed=True,coverover=False,bgt_pat
     tmp = scoring(cover_shot,over_shot,printed=False)
     cover.append(cover_shot)
     over.append(over_shot)
+    
     if tmp > score:
         score = tmp
         cover_score = cover_shot

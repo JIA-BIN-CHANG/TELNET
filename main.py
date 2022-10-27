@@ -155,7 +155,7 @@ def train_test_split(dataset_dir, video_list, test_size=0.3):
     clean_video_list=[]
     for video_name in video_list:
         visual_feature_dir = os.path.join(dataset_dir,'parse_data',video_name)
-        if len(os.listdir(visual_feature_dir)) > 25:
+        if len(os.listdir(visual_feature_dir)) > 25:# if video shot is less than 25 shots, merging algorithm will fail.
             clean_video_list.append(video_name)
     nvideo = len(clean_video_list)
     ntest = int(test_size*nvideo)

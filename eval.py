@@ -37,7 +37,7 @@ def eval_model(model, config):
             nShot = len(os.listdir(feature_dir))
             nbatch = int(nShot/window_size)+1
             feature = tools.load_feature(feature_dir)
-            if feature.shape[0] < 25:
+            if feature.shape[0] < 25:# if video shot is less than 25 shots, merging algorithm will fail.
                 video_dont_count = video_dont_count + 1
                 continue
             pred = torch.tensor([])

@@ -52,14 +52,14 @@ python eval.py --dataset {dataset_name}
 
 ### Cross dataset
 
-#### F0-score of ACRNet on cross dataset
+#### F-score of ACRNet on cross dataset
 | Train \ Test |   MSC    |   BBC    |   OVSD   |
 |:------------:|:--------:|:--------:|:--------:|
 |     MSC      | **0.67** |   0.64   |   0.63   |
 |     BBC      |   0.28   | **0.76** |   0.22   |
 |     OVSD     |   0.29   |   0.23   | **0.73** |
 
-#### F0-score of TELNet on cross dataset
+#### F-score of TELNet on cross dataset
 | Train \ Test | MSC | BBC  | OVSD |
 |:------------:|:---:|:----:|:----:|
 |     MSC      |     |      |      |

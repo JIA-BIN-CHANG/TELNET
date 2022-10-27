@@ -19,3 +19,10 @@ parsers:
 ```
 python eval.py --dataset {dataset_name}
 ```
+
+## Results
+| Train \ Test | MSC | BBC  | OVSD |
+|:------------:|:---:|:----:|:----:|
+|     MSC      |     |      |      |
+|     BBC      |     | 0.74 | 0.57 |
+|     OVSD     |     | 0.62 | 0.72 |

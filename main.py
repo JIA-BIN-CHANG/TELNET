@@ -151,6 +151,20 @@ def inference(model, feature, label, windowSize):
             all_link_np = all_link_np.to(torch.device('cpu'))
     return all_link_np 
 
+def train_test_split(dataset_dir, video_list, test_size=0.3):
+    clean_video_list=[]
+    for video_name in video_list:
+        visual_feature_dir = os.path.join(dataset_dir,'parse_data',video_name)
+        if len(os.listdir(visual_feature_dir)) > 25:
+            clean_video_list.append(video_name)
+    nvideo = len(clean_video_list)
+    ntest = int(test_size*nvideo)
+    index = [i for i in range(nvideo)]
+    random.shuffle(index)
+    training = [clean_video_list[i] for i in index[ntest:]]
+    testing = [clean_video_list[i] for i in index[:ntest]]
+    return training, testing
+
 def train(config):
     # Read config
     device = torch.device(config['device'])
@@ -213,6 +227,54 @@ def train(config):
                     best_model = model
                 print("Epoch: {}, f_score: {}, best f_score: {}".format(epoch,tmp,f_score))
         return best_model
+    elif (config['Training_mode'] == 'train_test_split'):
+        print("Train test split")
+        training_list, testing_list = train_test_split(dataset_dir, video_list)
+        print('done train test split')
+        f_score = 0
+        train_losses = []
+        for epoch in range(config['epoches']):
+            epoch_loss = 0
+            for video_name in training_list:
+                batch_loss = 0
+                model.train()
+                visual_feature_dir = os.path.join(dataset_dir,'parse_data',video_name)   ## 聲明shot feature的路徑
+                feature = tools.load_feature(visual_feature_dir).to(device)                 ## 讀取shot feature
+                label = tools.load_keyShot(label_dir,video_name)
+                if label is None:
+                    continue
+                label = label.to(device)
+
+                all_link_np = inference(model, feature, label, windowSize) #merge algorithm
+                
+                gt_window = label[0:feature.shape[0]]
+                gt_window = gt_window.to(torch.device('cpu'))
+                lossout = lossfun(all_link_np,gt_window)
+                batch_loss = lossout.item()
+                lossout = Variable(lossout, requires_grad=True)
+                lossout.backward()
+                optimizer.step()
+                optimizer.zero_grad()
+                scheduler.step()
+                batch_loss = batch_loss
+                if np.isnan(batch_loss):
+                    pass
+                else:
+                    epoch_loss += batch_loss
+            epoch_loss = epoch_loss/len(video_list)
+            print("epoch: {}, loss: {}".format(epoch,epoch_loss))
+            train_losses.append(epoch_loss)
+            
+            #evaluate and save best model to temp
+            if epoch % eval_rate == (eval_rate-1):
+                tmp, tmp_bound,boundary_list,testing_losses = tools.evaluate_window(label_dir, model, testing_list, 5, windowSize, dataset_dir, bbc=config['isBBC'])    ## 一段時間後驗證一次模型，更多說明見evaluate_window
+                if tmp>f_score:
+                    f_score = tmp
+                    bsf_bound = tmp_bound
+                    bsf_boundary_list = boundary_list
+                    best_model = model
+                print("Epoch: {}, f_score: {}, best f_score: {}".format(epoch,tmp,f_score))
+        return best_model, f_score
     else:
         print("Leave One Out Training")
         fscore_dict = {}
@@ -304,11 +366,19 @@ if __name__ == '__main__':
         best_model = train(config)
         save_model(best_model, config['save_model_path'])
     if (args.type == "leave_one_out"):
-        '''BBC Leave one out'''
+        '''Leave one out training and test itself'''
         config['Training_mode'] = 'leave_one_out'
         score_dict, boundary_dict = train(config)
         save_score(config['save_score_path'],score_dict)
         save_bound(config['save_bound_path'],boundary_dict)
+    if (args.type == "train_test_split"):
+        '''MSC dataset evaluation'''
+        config['Training_mode'] = 'train_test_split'
+        best_model, fscore = train(config)
+        save_model(best_model, config['save_model_path'])
+        f = open('./final_result/msc_result/f1/result.txt', 'w')
+        f.writelines('f-score: '+str(fscore))
+        f.close()
     
 
     

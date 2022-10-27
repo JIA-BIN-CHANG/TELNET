@@ -62,6 +62,6 @@ python eval.py --dataset {dataset_name}
 #### F-score of TELNet on cross dataset
 | Train \ Test | MSC  | BBC  | OVSD |
 |:------------:|:----:|:----:|:----:|
-|     MSC      |      |      |      |
+|     MSC      | 0.69 | 0.62 | 0.60 |
 |     BBC      | 0.64 | 0.74 | 0.56 |
 |     OVSD     | 0.64 | 0.64 | 0.72 |

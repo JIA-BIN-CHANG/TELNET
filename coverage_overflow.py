@@ -245,6 +245,7 @@ def fscore_eval(boundary,video_name,gt_path,printed=True,coverover=False,bgt_pat
     else:
         bgt = load_bgt(gt_path, video_name, bgt_path)
     if bgt is None:
+        print('bgt is none')
         return np.nan
     cover_shot, over_shot = coverOverflow(bgt, boundary)
     tmp = scoring(cover_shot,over_shot,printed=False)

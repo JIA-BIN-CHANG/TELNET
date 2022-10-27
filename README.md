@@ -50,7 +50,16 @@ python eval.py --dataset {dataset_name}
 |  Star Wreck   |            0.62             |              0.66              |                0.55                 |          | **0.71**  |
 |    Average    |            0.58             |              0.70              |                0.61                 | **0.73** |   0.72    |
 
-### Compare datasets
+### Cross dataset
+
+#### F0-score of ACRNet on cross dataset
+| Train \ Test |   MSC    |   BBC    |   OVSD   |
+|:------------:|:--------:|:--------:|:--------:|
+|     MSC      | **0.67** |   0.64   |   0.63   |
+|     BBC      |   0.28   | **0.76** |   0.22   |
+|     OVSD     |   0.29   |   0.23   | **0.73** |
+
+#### F0-score of TELNet on cross dataset
 | Train \ Test | MSC | BBC  | OVSD |
 |:------------:|:---:|:----:|:----:|
 |     MSC      |     |      |      |

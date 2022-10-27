@@ -4,8 +4,12 @@ TELNET with merging algorithm version
 ## main.py
 Use to train datset in two different mode
 parsers:
---type : "cross" or "leave_one_out"
+--type : "cross", "leave_one_out", "train_test_split"
 --dataset : "bbc", "ovsd", "msc"
+Note:
+When using BBC or OVSD dataset, use "cross" or "leave_one_out"
+When using MSC dataset, required to use "train_test_spilt" only
+
 ```
 python main.py --type {type_name} --dataset {dataset_name}
 ```

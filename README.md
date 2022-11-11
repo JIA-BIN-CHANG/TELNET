@@ -25,7 +25,7 @@ TELNet
 ```
 
 ## How to train on dataset
-Use **main.py** to train datset in different modes. For **BBC** and **OVSD** datasets, use "leave one out" method for training. For OVSD dataset, use "train test split" for training.  
+Use **main.py** to train datset in different modes. For **BBC** and **OVSD** datasets, use **"leave one out"** method for training. For **MSC** dataset, use **"train test split"** for training.  
 
 parsers:
 --type : "cross", "leave_one_out", "train_test_split"

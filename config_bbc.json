@@ -4,8 +4,8 @@
     "epoches": 100,
     "eval_rate": 5,
    
-    "dataset_dir": "D:/UC_project/BBC_Earth_Dataset", 
-    "label_dir": "D:/UC_project/BBC_Earth_Dataset/annotations/scenes/annotator_1",
+    "dataset_dir": "BBC_Earth_Dataset", 
+    "label_dir": "BBC_Earth_Dataset/annotations/scenes/annotator_1",
     "isBBC": true,
     "Training_mode": "cross",
 
@@ -18,5 +18,5 @@
     "save_bound_path": "./final_result/bbc_result/boundary/BBC_Dataset_sports1M epoches 100 mask=5 merge_window=15_correct.txt",
     "save_model_path": "./final_result/bbc_result/model/BBC_mask=5.pth",
 
-    "trained_model_path": "D:./final_result/bbc_result/model/BBC_mask=5.pth"
+    "trained_model_path": "./final_result/bbc_result/model/BBC_mask=5.pth"
 }

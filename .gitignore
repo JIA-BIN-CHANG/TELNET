@@ -3,6 +3,9 @@
 
 #yang_bbc_keyshot
 yang_bbc_keyshot
+BBC_Earth_Dataset
+MSC_Dataset
+OVSD_Dataset
 
 #all the unclean code from pervious
 main_clean.py

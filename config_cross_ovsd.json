@@ -1,9 +1,9 @@
 {
     "device" : "cuda",
 
-    "eval_list": ["D:/UC_project/BBC_Earth_Dataset/", "D:/UC_project/MSC_Dataset/"],
+    "eval_list": ["BBC_Earth_Dataset/", "MSC_Dataset/"],
     
-    "label_dir": ["D:/UC_project/BBC_Earth_Dataset/annotations/scenes/annotator_1", "D:/UC_project/MSC_Dataset/label"],
+    "label_dir": ["BBC_Earth_Dataset/annotations/scenes/annotator_1", "MSC_Dataset/label"],
     "Training_mode": "cross",
     "isBBC": true,
 

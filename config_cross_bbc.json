@@ -1,9 +1,9 @@
 {
     "device" : "cuda",
 
-    "eval_list": ["D:/UC_project/OVSD_Dataset", "D:/UC_project/MSC_Dataset/"],
+    "eval_list": ["OVSD_Dataset", "MSC_Dataset/"],
     
-    "label_dir": ["D:/UC_project/OVSD_Dataset/label", "D:/UC_project/MSC_Dataset/label"],
+    "label_dir": ["OVSD_Dataset/label", "MSC_Dataset/label"],
     "Training_mode": "cross",
     "isBBC": false,
 
@@ -11,5 +11,5 @@
     "window_size": 15,
 
 
-    "trained_model_path": "D:./final_result/bbc_result/model/BBC_mask=5.pth"
+    "trained_model_path": "./final_result/bbc_result/model/BBC_mask=5.pth"
 }

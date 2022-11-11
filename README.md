@@ -1,21 +1,43 @@
-# TELNET
-TELNET with merging algorithm version
+# Identify Video Scene Boundaries using Transformer Encoding Linker Network(TELNet)
 
-## main.py
-Use to train datset in two different mode
+## Dataset and Feature Download Link
+Please download the BBC Dataset, MSC Dataset, OVSD Dataset and their shot features from [here](https://google.com). Afterwards, reference the directory tree and modify config files to make sure directories are valid. 
+
+### Directory tree
+```
+TELNet
+├── README.md
+├── main.py
+├── eval.py
+├── tools.py
+├── coverage_overflow.py
+├── boundary_plot.py
+├── model
+│   ├── layer_norm.py
+│   ├── TELNet_Model.py
+├── final_result
+│   ├── bbc_result
+│   ├── msc_result
+│   └── ovsd_result
+├── BBC_Earth_Dataset (Put the dataset here)
+├── MSC_Dataset (Put the dataset here)
+└── OVSD_Dataset (Put the dataset here)
+```
+
+## How to train on dataset
+Use **main.py** to train datset in different modes. For **BBC** and **OVSD** datasets, use "leave one out" method for training. For OVSD dataset, use "train test split" for training.  
+
 parsers:
 --type : "cross", "leave_one_out", "train_test_split"
 --dataset : "bbc", "ovsd", "msc"
-Note:
-When using BBC or OVSD dataset, use "cross" or "leave_one_out"
-When using MSC dataset, required to use "train_test_spilt" only
 
 ```
 python main.py --type {type_name} --dataset {dataset_name}
 ```
 
-## eval.py
-Use to evaluate datset using weights trained for different dataset
+## How to evaluate model on different datasets
+Use **eval.py** to evaluate datset using weights trained for different dataset.
+
 parsers:
 --dataset : "bbc", "ovsd", "msc"
 ```

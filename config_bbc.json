@@ -4,7 +4,7 @@
     "epoches": 100,
     "eval_rate": 5,
    
-    "dataset_dir": "D:/features/BBC_Dataset_sports1M_clip_len=16_yang_v2", 
+    "dataset_dir": "D:/UC_project/BBC_Earth_Dataset", 
     "label_dir": "D:/UC_project/BBC_Earth_Dataset/annotations/scenes/annotator_1",
     "isBBC": true,
     "Training_mode": "cross",

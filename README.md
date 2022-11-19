@@ -1,7 +1,7 @@
 # Identify Video Scene Boundaries using Transformer Encoding Linker Network(TELNet)
 
 ## Dataset and Feature Download Link
-Please download the BBC Dataset, MSC Dataset, OVSD Dataset and their shot features from [here](https://google.com). Afterwards, reference the directory tree and modify config files to make sure directories are valid. 
+Please download the BBC Dataset, MSC Dataset, OVSD Dataset and their shot features from [here](https://mailuc-my.sharepoint.com/:u:/g/personal/yehzg_mail_uc_edu/EaYHvwfoeaxGhz_VWBZVndMBVboTA58suReUxZ-b2TjZnA?e=ydMdSA). Afterwards, reference the directory tree and modify config files to make sure directories are valid. 
 
 ### Directory tree
 ```

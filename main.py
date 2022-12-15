@@ -44,7 +44,7 @@ def save_bound(path, bound_dict):
             fw.write('\n')
     return
 
-def inference(model, feature, label, windowSize):
+def merge(model, feature, label, windowSize):
     '''yang merge & loss'''
     nbatch = int((feature.shape[0]-windowSize)/(windowSize-5))+2
     all_link_np = np.zeros((feature.shape[0],feature.shape[0])) # 383*383 all zero matrix
@@ -58,8 +58,8 @@ def inference(model, feature, label, windowSize):
             end = end - 5*i
         end = min(end, feature.shape[0])
         
-        src = feature[start:end]## 取這一個batch所有的shot feature
-        att_out = model(src)## 將這15shot feature丟到model裡，att_out是任一shot對每個shot的分數
+        src = feature[start:end]#shot features in batch
+        att_out = model(src)
 
         new_value = [] # attention output percentage
         for i in range(5):
@@ -67,7 +67,7 @@ def inference(model, feature, label, windowSize):
         if end != feature.shape[0]:
             index = 14
             att_out = att_out.view(-1,windowSize)
-            if len(value_tmp) == 0 :
+            if not value_tmp:
                 value_tmp.append(att_out[10:15,])
                 for i in range(5):
                     att_out = att_out[torch.arange(att_out.size(0))!= index ] 
@@ -80,25 +80,34 @@ def inference(model, feature, label, windowSize):
                 att_out = torch.cat((att_out,final),1)
                 att_out = att_out[:,:] 
                 
-                att_out = att_out.detach().numpy()                                             
+                att_out = att_out.detach().numpy()
                 all_link_np[0:10,:] = att_out[:,:]
-                all_link_np = torch.tensor(all_link_np) 
+                all_link_np = torch.tensor(all_link_np)
                 
             else:  
                 value_tmp.append(att_out[0:5,]) 
                 # new_value is a 5 * 15 matrix
-                for i in range(5):
-                    for j in range(15):                                        
-                        if value_tmp[0][i][j] > value_tmp[1][i][j]:
-                            new_value[i].append(value_tmp[0][i][j].item()) 
-                        elif value_tmp[0][i][j] <= value_tmp[1][i][j]:                                
-                            new_value[i].append(value_tmp[1][i][j].item())            
+                # look at the merge part and reselect the keyshot
+                for shot_index in range(5):
+                    for shot in range(10):
+                        new_value[shot_index].append(value_tmp[0][shot_index][shot].item())
+                    for candidate_index in range(5):
+                        if value_tmp[0][shot_index][10+candidate_index] > value_tmp[1][shot_index][candidate_index]:
+                            new_value[shot_index].append(value_tmp[0][shot_index][candidate_index].item())
+                        elif value_tmp[0][shot_index][10+candidate_index] <= value_tmp[1][shot_index][candidate_index]:
+                            new_value[shot_index].append(value_tmp[1][shot_index][candidate_index].item())
+                    for shot in range(5,15):
+                        new_value[shot_index].append(value_tmp[1][shot_index][shot].item())
+
+                # keep value_temp to obtain window n+1 last 5 shots
                 del value_tmp[1]
-                value_tmp.append(att_out[10:15,]) 
+                value_tmp.append(att_out[10:15,])
                 value_tmp[0] = value_tmp[1]
                 del value_tmp[1]
+
+                # only keep 5 shots in window n+1
                 for i in range(5):
-                    new_value[i] = new_value[i][0:15]
+                    new_value[i] = new_value[i][0:15]#size:5*15
                 for i in range(5):###刪除10~14
                     att_out = att_out[torch.arange(att_out.size(0))!= index ] 
                     index = index - 1
@@ -108,12 +117,13 @@ def inference(model, feature, label, windowSize):
                 att_out = att_out.to(torch.device('cpu'))
                 att_out = torch.cat((new_value,att_out))
 
+                # Fill zeros in the merge matrix
                 begin = [[0]*start for i in range(10)]
                 final = [[0]*int(feature.shape[0]-(end)) for i in range(10)]
 
                 begin = torch.tensor(begin) 
                 final = torch.tensor(final)
-                att_out = att_out.clone().detach()                                   
+                att_out = att_out.clone().detach()                              
                                        
                 att_out = torch.cat((begin,att_out),1)
                 att_out = torch.cat((att_out,final),1)
@@ -133,7 +143,7 @@ def inference(model, feature, label, windowSize):
             att_out = att_out.to(torch.device('cpu'))                         
             att_out = torch.cat((begin,att_out),1)
             all_link_np[start:feature.shape[0],:] = att_out[:,:]
-    return all_link_np 
+    return all_link_np
 
 def train_test_split(dataset_dir, video_list, test_size=0.3):
     clean_video_list=[]
@@ -174,14 +184,14 @@ def train(config):
             for video_name in video_list:
                 batch_loss = 0
                 model.train()
-                visual_feature_dir = os.path.join(dataset_dir,'parse_data',video_name)   ## 聲明shot feature的路徑
-                feature = tools.load_feature(visual_feature_dir).to(device)                 ## 讀取shot feature
+                visual_feature_dir = os.path.join(dataset_dir,'parse_data',video_name)
+                feature = tools.load_feature(visual_feature_dir).to(device)
                 label = tools.load_keyShot(label_dir,video_name)
                 if label is None:
                     continue
                 label = label.to(device)
 
-                all_link_np = inference(model, feature, label, windowSize) #merge algorithm
+                all_link_np = merge(model, feature, label, windowSize) #merge algorithm
                 
                 gt_window = label[0:feature.shape[0]]
                 gt_window = gt_window.to(torch.device('cpu'))
@@ -229,7 +239,7 @@ def train(config):
                     continue
                 label = label.to(device)
 
-                all_link_np = inference(model, feature, label, windowSize) #merge algorithm
+                all_link_np = merge(model, feature, label, windowSize) #merge algorithm
                 
                 gt_window = label[0:feature.shape[0]]
                 gt_window = gt_window.to(torch.device('cpu'))
@@ -283,7 +293,7 @@ def train(config):
                     label = label.to(device)
                     batch_loss=0
 
-                    all_link_np = inference(model, feature, label, windowSize) #merge algorithm
+                    all_link_np = merge(model, feature, label, windowSize) #merge algorithm
 
                     gt_window = label[0:feature.shape[0]]
                     gt_window = gt_window.to(torch.device('cpu'))

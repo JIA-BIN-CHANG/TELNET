@@ -213,30 +213,34 @@ def evaluate_window(label_dir,model,video_list,mask,windowSize,ground_dir,bbc=Fa
                     all_link_np[0:10,:] = att_out[:,:]
                     all_link_np = torch.tensor(all_link_np) 
                 else:  
-                    value_tmp.append(value[0:5,:]) 
-                    att_out_value_tmp.append(att_out[0:5,:])
+                    value_tmp.append(value[0:5,]) 
+                    att_out_value_tmp.append(att_out[0:5,])
                     tmp_tmp.append(tmp[0:5,])
-                    for i in range(5):
-                        for j in range(5):
-                            for jj in range(5):
-                                if value_tmp[0][i][j] > value_tmp[1][i][jj]:
-                                    if tmp_tmp[0][i][j] in new_tmp[i]:
+
+                    for shot_index in range(5):
+                        for window_cur_top5 in range(5):
+                            for window_next_top5 in range(5):
+                                if value_tmp[0][shot_index][window_cur_top5] > value_tmp[1][shot_index][window_next_top5]:
+                                    if tmp_tmp[0][shot_index][window_cur_top5] in new_tmp[shot_index]:
                                         pass
                                     else:
-                                        new_tmp[i].append(tmp_tmp[0][i][j].item())
-                                elif value_tmp[0][i][j] <= value_tmp[1][i][jj]:                                
-                                    if tmp_tmp[1][i][jj] in new_tmp[i]:
+                                        new_tmp[shot_index].append(tmp_tmp[0][shot_index][window_cur_top5].item())
+                                elif value_tmp[0][shot_index][window_cur_top5] <= value_tmp[1][shot_index][window_next_top5]:                                
+                                    if tmp_tmp[1][shot_index][window_next_top5] in new_tmp[shot_index]:
                                         pass
                                     else:
-                                        new_tmp[i].append(tmp_tmp[1][i][jj].item())                  
-                                
-                    for i in range(5):
-                        for j in range(15):                                        
-                            if att_out_value_tmp[0][i][j] > att_out_value_tmp[1][i][j]:
-                                new_value[i].append(att_out_value_tmp[0][i][j].item())
-                                
-                            elif att_out_value_tmp[0][i][j] <= att_out_value_tmp[1][i][j]:                                
-                                new_value[i].append(att_out_value_tmp[1][i][j].item())
+                                        new_tmp[shot_index].append(tmp_tmp[1][shot_index][window_next_top5].item())             
+                    #calculate test loss
+                    for shot_index in range(5):
+                        for shot in range(10):
+                            new_value[shot_index].append(att_out_value_tmp[0][shot_index][shot].item())
+                        for candidate_index in range(5):
+                            if att_out_value_tmp[0][shot_index][10+candidate_index] > att_out_value_tmp[1][shot_index][candidate_index]:
+                                new_value[shot_index].append(att_out_value_tmp[0][shot_index][candidate_index].item())
+                            elif att_out_value_tmp[0][shot_index][10+candidate_index] <= att_out_value_tmp[1][shot_index][candidate_index]:
+                                new_value[shot_index].append(att_out_value_tmp[1][shot_index][candidate_index].item())
+                        for shot in range(5,15):
+                            new_value[shot_index].append(att_out_value_tmp[1][shot_index][shot].item())     
                                              
                     del value_tmp[1]
                     del att_out_value_tmp[1]

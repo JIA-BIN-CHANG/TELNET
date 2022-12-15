@@ -29,8 +29,6 @@ class SelfAttention(nn.Module):
 
         self.drop50 = nn.Dropout(0.5)
 
-
-
     def forward(self, x):
         n = x.shape[0]  # sequence length
 
@@ -40,20 +38,9 @@ class SelfAttention(nn.Module):
 
         Q *= 0.06
         logits = torch.matmul(Q, K.transpose(1,0))
-
-        if self.ignore_itself:
-            # Zero the diagonal activations (a distance of each frame with itself)
-            logits[torch.eye(n).byte()] = -float("Inf")
-
-        if self.apperture > 0:
-            # Set attention to zero to frames further than +/- apperture from the current one
-            onesmask = torch.ones(n, n)
-            trimask = torch.tril(onesmask, -self.apperture) + torch.triu(onesmask, self.apperture)
-            logits[trimask == 1] = -float("Inf")
-
         att_weights_ = nn.functional.softmax(logits, dim=-1)
         weights = self.drop50(att_weights_)
-        y = torch.matmul(V.transpose(1,0), weights).transpose(1,0)
+        y = torch.matmul(weights,V)
         y = self.output_linear(y)
 
         return y

@@ -57,8 +57,8 @@ def eval_model(model, config):
                 src = feature[start:end]
 
                 att_out = model(src)            
-                value, tmp = torch.topk(att_out.view(-1,window_size),5) ## 前面與training一樣，topk是指選高的前k個，因為att_out是對每個shot的分數，所以就是把對一個shot而言連到另一個分數高的shot
-                tools.fix_pred(tmp, start)## tmp給出的是相對的位置，因此實際的連線要加上開始的索引值
+                value, tmp = torch.topk(att_out.view(-1,window_size),5)
+                tools.fix_pred(tmp, start)
 
                 new_value = []
                 new_tmp = []
@@ -68,7 +68,7 @@ def eval_model(model, config):
                 if end != feature.shape[0]: # if the current batch is not the last batch
                     att_out = att_out.view(-1,window_size)
                     index = 14
-                    if len(value_tmp) == 0 :
+                    if not value_tmp:
                         value_tmp.append(value[10:15,:])
                         att_out_value_tmp.append(att_out[10:15,:])
                         tmp_tmp.append(tmp[10:15,])
@@ -83,35 +83,38 @@ def eval_model(model, config):
                         att_out = torch.cat((att_out,final),1)
                         att_out = att_out[:,:] 
                         att_out = att_out.detach().numpy()  
-                        
                         all_link_np[0:10,:] = att_out[:,:]
                         all_link_np = torch.tensor(all_link_np) 
                     else:  
                         value_tmp.append(value[0:5,:]) 
                         att_out_value_tmp.append(att_out[0:5,:])
                         tmp_tmp.append(tmp[0:5,])
-                        for i in range(5):
-                            for j in range(5):
-                                for jj in range(5):
-                                    if value_tmp[0][i][j] > value_tmp[1][i][jj]:
-                                        if tmp_tmp[0][i][j] in new_tmp[i]:
+                        for shot_index in range(5):
+                            for window_cur_top5 in range(5):
+                                for window_next_top5 in range(5):
+                                    if value_tmp[0][shot_index][window_cur_top5] > value_tmp[1][shot_index][window_next_top5]:
+                                        if tmp_tmp[0][shot_index][window_cur_top5] in new_tmp[shot_index]:
                                             pass
                                         else:
-                                            new_tmp[i].append(tmp_tmp[0][i][j].item())
-                                    elif value_tmp[0][i][j] <= value_tmp[1][i][jj]:                                
-                                        if tmp_tmp[1][i][jj] in new_tmp[i]:
+                                            new_tmp[shot_index].append(tmp_tmp[0][shot_index][window_cur_top5].item())
+                                    elif value_tmp[0][shot_index][window_cur_top5] <= value_tmp[1][shot_index][window_next_top5]:                                
+                                        if tmp_tmp[1][shot_index][window_next_top5] in new_tmp[shot_index]:
                                             pass
                                         else:
-                                            new_tmp[i].append(tmp_tmp[1][i][jj].item())                  
-                                    
-                        for i in range(5):
-                            for j in range(15):                                        
-                                if att_out_value_tmp[0][i][j] > att_out_value_tmp[1][i][j]:
-                                    new_value[i].append(att_out_value_tmp[0][i][j].item())
-                                    
-                                elif att_out_value_tmp[0][i][j] <= att_out_value_tmp[1][i][j]:                                
-                                    new_value[i].append(att_out_value_tmp[1][i][j].item())
-                                                
+                                            new_tmp[shot_index].append(tmp_tmp[1][shot_index][window_next_top5].item())
+                        #test loss calculation
+                        for shot_index in range(5):
+                            for shot in range(10):
+                                new_value[shot_index].append(att_out_value_tmp[0][shot_index][shot].item())
+                            for candidate_index in range(5):
+                                if att_out_value_tmp[0][shot_index][10+candidate_index] > att_out_value_tmp[1][shot_index][candidate_index]:
+                                    new_value[shot_index].append(att_out_value_tmp[0][shot_index][candidate_index].item())
+                                elif att_out_value_tmp[0][shot_index][10+candidate_index] <= att_out_value_tmp[1][shot_index][candidate_index]:
+                                    new_value[shot_index].append(att_out_value_tmp[1][shot_index][candidate_index].item())
+                            for shot in range(5,15):
+                                new_value[shot_index].append(att_out_value_tmp[1][shot_index][shot].item())
+
+                        # keep value_temp to obtain window n+1 last 5 shots                     
                         del value_tmp[1]
                         del att_out_value_tmp[1]
                         del tmp_tmp[1]
@@ -137,7 +140,8 @@ def eval_model(model, config):
                             value = value[torch.arange(value.size(0))!= i ]
                             att_out = att_out[torch.arange(att_out.size(0))!= i ]
                             tmp = tmp[torch.arange(tmp.size(0))!= i ] 
-                            
+                        
+                        #Update merge part to window 
                         new_tmp = torch.tensor(new_tmp)
                         tmp = torch.cat((new_tmp,tmp))
                         new_value = torch.tensor(new_value)
@@ -174,6 +178,7 @@ def eval_model(model, config):
                     pred = torch.cat((pred,tmp)) 
                     break
                 pred = torch.cat((pred,tmp))
+
             boundary, _ = tools.pred_scenes(pred)
             if isBBC:
                 score = co.fscore_eval_bbc(boundary, video_name)

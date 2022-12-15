@@ -21,7 +21,6 @@ import argparse
 
 # import tools
 import tools as tools
-from model.TELNet_Model import MyTransformer
 from model.TELNet_Model import TELNet_model
 
 def save_score(path, score_dict):
@@ -47,21 +46,21 @@ def save_bound(path, bound_dict):
 
 def inference(model, feature, label, windowSize):
     '''yang merge & loss'''
-    nbatch = int((feature.shape[0]-windowSize)/(windowSize-5))+2              #yang   windowsize = 15
+    nbatch = int((feature.shape[0]-windowSize)/(windowSize-5))+2
     all_link_np = np.zeros((feature.shape[0],feature.shape[0])) # 383*383 all zero matrix
     value_tmp = [] # store temp attention value
     ii = 1
     for i in range(nbatch):
-        start = i*windowSize                                                ## 每個batch開始的shot，比如說batch0 從shot0開始， batch1從16開始。這邊可以改成有重疊
-        end = (i+1)*windowSize   ## 每個batch結束的shot
+        start = i*windowSize
+        end = (i+1)*windowSize
         if start > 0: # windowsize = 15
             start = start - 5*i
             end = end - 5*i
         end = min(end, feature.shape[0])
         
-        src = feature[start:end]                                            ## 取這一個batch所有的shot feature
-        gt_window = label[start:end]                                  ## 以及所對應的keyShot
-        att_out = model(src)                                                ## 將這15shot feature丟到model裡，att_out是任一shot對每個shot的分數
+        src = feature[start:end]## 取這一個batch所有的shot feature
+        gt_window = label[start:end]## 以及所對應的keyShot
+        att_out = model(src)## 將這15shot feature丟到model裡，att_out是任一shot對每個shot的分數
 
         new_value = [] # attention output percentage
         for i in range(5):

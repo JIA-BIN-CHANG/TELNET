@@ -73,14 +73,13 @@ def fix_pred(gt,start_shot):
 
 def pred_scenes(pred,mask=5):
     """
-    這邊有點複雜...會逐行說明
     Parameters
     ----------
     pred : torch.tensor
         pred are top 5 shot current shot attention to.
     mask : int, optional
         In pred, only care about the shot in range current index-mask to current index+mask The default is 8.
-        換句話說，只有前後8個才會連線
+        換句話說，只有前後10個才會連線
 
     Returns
     -------
@@ -90,25 +89,25 @@ def pred_scenes(pred,mask=5):
     """
     mask = 5
     pred_np = pred.detach().numpy()                                             ## 將pred轉為numpy array形式
-    total_shot = len(pred_np) ## 總共的shot數
+    total_shot = len(pred_np) ## total shots
     #以下是讓每個shot 找到分數最高的shot並且進行連線
     
     links = []
     for i in range(total_shot):
         attention_to = pred_np[i]                                               ## pred_np[i] 是對於第i個shot而言"可能"連線的對象(候選人)    
-        lower = max(0,i-mask)                                                   ## 對於第i個shot而言他只在乎i-8~i+8之間的候選人，當然i-8不得小於0，i+8不能超過總數
+        lower = max(0,i-mask)                                                   ## 對於第i個shot而言他只在乎i-5~i+5之間的候選人，當然i-5不得小於0，i+5不能超過總數
         upper = min(total_shot,i+mask)
         upper = upper+1
         noLink = True
         for each in attention_to:
-            if each in range(lower,upper):                                      ## 如果他個候選人中有在-8~+8間就會與最高分的建立連線
+            if each in range(lower,upper):                                      ## 如果他個候選人中有在-5~+5間就會與最高分的建立連線
                 links.append((i,each))
                 noLink = False
                 break
         if noLink:
             links.append((i,i))                                                 ## 如果沒有就連到自己
 
-    ## org 以下是找出scene
+    ##以下是找出scene
     scenes = []        
     for link in links:
         start = int(min(link))
@@ -151,9 +150,9 @@ def evaluate_window(label_dir,model,video_list,mask,windowSize,ground_dir,bbc=Fa
     """
     video_name = video_list[0]
     lossfun = nn.CrossEntropyLoss()
-    visual_feature_dir = os.path.join(ground_dir,'parse_data')                  ## feature的路徑
-    fscore = 0                                                                  ## 紀錄 Fscore            
-    for video_name in video_list:                                            ## 因為每個Dataset都有很多影片，故要計算每個的平均
+    visual_feature_dir = os.path.join(ground_dir,'parse_data')
+    fscore = 0
+    for video_name in video_list:
         label = load_keyShot(label_dir,video_name)
         if label is None:
             continue
@@ -161,10 +160,11 @@ def evaluate_window(label_dir,model,video_list,mask,windowSize,ground_dir,bbc=Fa
         visual_feature_path = os.path.join(visual_feature_dir,video_name)
         if not os.path.isdir(visual_feature_path):
             continue
-        feature = load_feature(visual_feature_path).to(device)                ## 讀取 shot feature
+        feature = load_feature(visual_feature_path).to(device)
         pred = torch.tensor([]).to(torch.device('cpu'))      
         batch_loss=0
-        nbatch = int((feature.shape[0]-windowSize)/(windowSize-5)) + 2              #yang   windowsize = 15
+        #windowsize = 15
+        nbatch = int((feature.shape[0]-windowSize)/(windowSize-5)) + 2
         all_link_np = np.zeros((feature.shape[0],feature.shape[0]))
         value_tmp = []
         att_out_value_tmp = []
@@ -181,8 +181,8 @@ def evaluate_window(label_dir,model,video_list,mask,windowSize,ground_dir,bbc=Fa
             src = feature[start:end]
 
             att_out = model(src)            
-            value, tmp = torch.topk(att_out.view(-1,windowSize),5) ## 前面與training一樣，topk是指選高的前k個，因為att_out是對每個shot的分數，所以就是把對一個shot而言連到另一個分數高的shot
-            fix_pred(tmp, start)## tmp給出的是相對的位置，因此實際的連線要加上開始的索引值
+            value, tmp = torch.topk(att_out.view(-1,windowSize),5) #topk candidates
+            fix_pred(tmp, start)#add window offset to tmp
 
             new_value = []
             new_tmp = []

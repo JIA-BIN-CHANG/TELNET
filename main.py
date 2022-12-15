@@ -107,7 +107,7 @@ def merge(model, feature, label, windowSize):
 
                 # only keep 5 shots in window n+1
                 for i in range(5):
-                    new_value[i] = new_value[i][0:15]#size:5*15
+                    new_value[i] = new_value[i][0:15]
                 for i in range(5):###刪除10~14
                     att_out = att_out[torch.arange(att_out.size(0))!= index ] 
                     index = index - 1

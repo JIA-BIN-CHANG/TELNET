@@ -183,6 +183,7 @@ def evaluate_window(label_dir,model,video_list,mask,windowSize,ground_dir,bbc=Fa
             att_out = model(src)            
             value, tmp = torch.topk(att_out.view(-1,windowSize),5) #topk candidates
             fix_pred(tmp, start)#add window offset to tmp
+            tmp = tmp.to(torch.device('cpu'))
 
             new_value = []
             new_tmp = []
@@ -295,12 +296,12 @@ def evaluate_window(label_dir,model,video_list,mask,windowSize,ground_dir,bbc=Fa
                 att_out = att_out.to(torch.device('cpu'))                         
                 att_out = torch.cat((begin,att_out),1)
                 all_link_np[start:feature.shape[0],:] = att_out[:,:]
-                pred = torch.cat((pred,tmp)) 
+                pred = torch.cat((pred,tmp))
                 break
 
             pred = torch.cat((pred,tmp))
 
-        gt_window = label[0:feature.shape[0]]
+        gt_window = label[0:feature.shape[0]].to(torch.device('cpu'))
 
         try:
             lossout = lossfun(all_link_np,gt_window)

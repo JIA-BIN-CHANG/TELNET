@@ -59,7 +59,6 @@ def inference(model, feature, label, windowSize):
         end = min(end, feature.shape[0])
         
         src = feature[start:end]## 取這一個batch所有的shot feature
-        gt_window = label[start:end]## 以及所對應的keyShot
         att_out = model(src)## 將這15shot feature丟到model裡，att_out是任一shot對每個shot的分數
 
         new_value = [] # attention output percentage
@@ -76,7 +75,6 @@ def inference(model, feature, label, windowSize):
                 
                 final = [[0]*int(feature.shape[0]-(end)) for i in range(10)] 
                 final = torch.tensor(final) 
-                final = final.to(torch.device('cpu'))
 
                 att_out = att_out.to(torch.device('cpu'))
                 att_out = torch.cat((att_out,final),1)
@@ -85,7 +83,6 @@ def inference(model, feature, label, windowSize):
                 att_out = att_out.detach().numpy()                                             
                 all_link_np[0:10,:] = att_out[:,:]
                 all_link_np = torch.tensor(all_link_np) 
-                all_link_np = all_link_np.to(torch.device('cpu'))
                 
             else:  
                 value_tmp.append(att_out[0:5,]) 
@@ -107,8 +104,7 @@ def inference(model, feature, label, windowSize):
                     index = index - 1
                 for i in range(5):########刪除 0~4
                     att_out = att_out[torch.arange(att_out.size(0))!= i ]    
-                new_value = torch.tensor(new_value)                                   
-                new_value = new_value.to(torch.device('cpu'))                                  
+                new_value = torch.tensor(new_value)                                                                   
                 att_out = att_out.to(torch.device('cpu'))
                 att_out = torch.cat((new_value,att_out))
 
@@ -118,17 +114,11 @@ def inference(model, feature, label, windowSize):
                 begin = torch.tensor(begin) 
                 final = torch.tensor(final)
                 att_out = att_out.clone().detach()                                   
-                
-                att_out = att_out.to(torch.device('cpu'))                         
+                                       
                 att_out = torch.cat((begin,att_out),1)
                 att_out = torch.cat((att_out,final),1)
                 att_out = att_out[:,:]
-                
-                att_out = att_out.detach().numpy()
-                all_link_np = all_link_np.detach().numpy()
                 all_link_np[ii*10:(ii+1)*10,:] = att_out[:,:]
-                all_link_np = torch.tensor(all_link_np) 
-                all_link_np = all_link_np.to(torch.device('cpu'))
                 
                 ii += 1                                                    
         elif end == feature.shape[0]:
@@ -142,12 +132,7 @@ def inference(model, feature, label, windowSize):
             att_out = att_out[0:feature.shape[0]-start]
             att_out = att_out.to(torch.device('cpu'))                         
             att_out = torch.cat((begin,att_out),1)
-            att_out = att_out.detach().numpy()
-            
-            all_link_np = all_link_np.detach().numpy()
             all_link_np[start:feature.shape[0],:] = att_out[:,:]
-            all_link_np = torch.tensor(all_link_np) 
-            all_link_np = all_link_np.to(torch.device('cpu'))
     return all_link_np 
 
 def train_test_split(dataset_dir, video_list, test_size=0.3):

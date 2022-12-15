@@ -205,15 +205,12 @@ def evaluate_window(label_dir,model,video_list,mask,windowSize,ground_dir,bbc=Fa
                     final = torch.tensor(final)
                     
                     att_out = att_out.to(torch.device('cpu'))
-                    final = final.to(torch.device('cpu'))
-
                     att_out = torch.cat((att_out,final),1)
                     att_out = att_out[:,:] 
                     att_out = att_out.detach().numpy()  
                     
                     all_link_np[0:10,:] = att_out[:,:]
                     all_link_np = torch.tensor(all_link_np) 
-                    all_link_np = all_link_np.to(torch.device('cpu'))
                 else:  
                     value_tmp.append(value[0:5,:]) 
                     att_out_value_tmp.append(att_out[0:5,:])
@@ -267,33 +264,22 @@ def evaluate_window(label_dir,model,video_list,mask,windowSize,ground_dir,bbc=Fa
                         tmp = tmp[torch.arange(tmp.size(0))!= i ] 
                           
                     new_tmp = torch.tensor(new_tmp)
-                    tmp = tmp.to(torch.device('cpu'))
-                    new_tmp = new_tmp.to(torch.device('cpu'))
-                    tmp = torch.cat((new_tmp,tmp))
-                    
-                    new_value = torch.tensor(new_value)   
-                    new_value = new_value.to(torch.device('cpu'))   
+                    tmp = torch.cat((new_tmp,tmp))         
+                    new_value = torch.tensor(new_value)     
                     
                     att_out = att_out.to(torch.device('cpu'))
                     att_out = torch.cat((new_value,att_out))
 
                     begin = [[0]*start for i in range(10)]
-                    final = [[0]*int(feature.shape[0]-(end)) for i in range(10)]
-                   
+                    final = [[0]*int(feature.shape[0]-(end)) for i in range(10)]               
                     begin = torch.tensor(begin) 
                     final = torch.tensor(final)
                     
-                    att_out = att_out.clone().detach()                                   
-                    att_out = att_out.to(torch.device('cpu'))  
+                    att_out = att_out.clone().detach()
                     att_out = torch.cat((begin,att_out),1)
                     att_out = torch.cat((att_out,final),1)
                     att_out = att_out[:,:]
-
-                    att_out = att_out.detach().numpy()
-                    all_link_np = all_link_np.detach().numpy()
                     all_link_np[ii*10:(ii+1)*10,:] = att_out[:,:]
-                    all_link_np = torch.tensor(all_link_np) 
-                    all_link_np = all_link_np.to(torch.device('cpu'))
 
                     ii += 1
                       
@@ -308,20 +294,14 @@ def evaluate_window(label_dir,model,video_list,mask,windowSize,ground_dir,bbc=Fa
                 att_out = att_out[0:feature.shape[0]-start]
                 att_out = att_out.to(torch.device('cpu'))                         
                 att_out = torch.cat((begin,att_out),1)
-                att_out = att_out.detach().numpy()
-
-                all_link_np = all_link_np.detach().numpy()
                 all_link_np[start:feature.shape[0],:] = att_out[:,:]
-                all_link_np = torch.tensor(all_link_np) 
-                all_link_np = all_link_np.to(torch.device('cpu'))
-                tmp = tmp.to(torch.device('cpu'))
                 pred = torch.cat((pred,tmp)) 
                 break
-            tmp = tmp.to(torch.device('cpu'))
+
             pred = torch.cat((pred,tmp))
 
         gt_window = label[0:feature.shape[0]]
-        gt_window = gt_window.to(torch.device('cpu'))
+
         try:
             lossout = lossfun(all_link_np,gt_window)
         except:

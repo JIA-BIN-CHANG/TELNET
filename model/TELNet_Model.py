@@ -66,12 +66,14 @@ class TELNet_model(nn.Module):
         self.att = SelfAttention(input_size=4096)
         self.linear1 = nn.Linear(in_features=input_size, out_features=1024)
         self.linear2 = nn.Linear(in_features=1024, out_features=windowSize)
-        
+        self.linear3 = nn.Linear(in_features=1024, out_features=1024)
+        self.linear4 = nn.Linear(in_features=1024, out_features=windowSize)
         
         self.sig = nn.Sigmoid()
         self.drop50 = nn.Dropout(0.5)
         self.layer_norm1 = ln.LayerNorm(input_size)
         self.layer_norm2 = ln.LayerNorm(1024)
+        self.layer_norm3 = ln.LayerNorm(1024)
     
     def forward(self, feature):
         # Self Attention layer
